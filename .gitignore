@@ -1,0 +1,29 @@
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+coverage.xml
+
+# JavaScript dependencies and generated output
+node_modules/
+dist/
+playwright-report/
+test-results/
+
+# Local settings and secrets. Keep the safe template tracked.
+.env
+.env.*
+!.env.example
+
+# Local editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
+
+# Scratch work and generated previews
+/work/

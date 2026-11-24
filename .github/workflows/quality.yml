@@ -1,0 +1,129 @@
+name: ShopGuard quality checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: shopguard
+          POSTGRES_PASSWORD: shopguard
+          POSTGRES_DB: shopguard
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U shopguard -d shopguard"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://shopguard:shopguard@localhost:5432/shopguard
+      TEST_DATABASE_URL: postgresql+psycopg://shopguard:shopguard@localhost:5432/shopguard_test
+      APP_ENV: test
+      AI_PROVIDER: mock
+    steps:
+      - name: Get the project code
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install Python packages
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Create the separate test database
+        run: python -c "import psycopg; connection=psycopg.connect('postgresql://shopguard:shopguard@localhost:5432/shopguard', autocommit=True); connection.execute('CREATE DATABASE shopguard_test'); connection.close()"
+
+      - name: Check Python style
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Prepare the shop database
+        run: |
+          alembic -c apps/api/alembic.ini upgrade head
+          python -m app.seed
+        env:
+          PYTHONPATH: apps/api
+
+      - name: Start the API for HTTP tests
+        run: |
+          PYTHONPATH=apps/api uvicorn app.main:app --host 127.0.0.1 --port 8000 > /tmp/shopguard-api.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/health; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/shopguard-api.log
+          exit 1
+
+      - name: Run project, AI evaluation, and dashboard tests
+        run: python automation/reporting/run_pytest_suite.py project-tests tests automation/ai/tests/test_evaluation.py automation/dashboard/tests
+
+      - name: Run backend API component tests
+        run: python automation/reporting/run_pytest_suite.py api-components apps/api/tests
+
+      - name: Run API checks through HTTP
+        run: python automation/reporting/run_pytest_suite.py api automation/api/tests
+
+      - name: Run AI security checks
+        run: python automation/reporting/run_pytest_suite.py ai-security automation/ai/tests/test_security.py
+
+      - name: Save AI answer evaluation results
+        run: python automation/ai/evaluate_rag.py
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Build the web app
+        run: npm ci && npx playwright install --with-deps chromium && npm run build
+        working-directory: apps/web
+
+      - name: Run browser journeys
+        run: npm run test:e2e -- --project=chromium
+        working-directory: apps/web
+        env:
+          SHOPGUARD_EXTERNAL_API: "1"
+
+      - name: Save browser test summary
+        if: always()
+        run: python automation/reporting/normalize_junit.py browser outputs/test-results/browser-junit.xml
+
+      - name: Build combined quality report
+        if: always()
+        run: python automation/reporting/build_quality_report.py
+        env:
+          PYTHONPATH: apps/api
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shopguard-quality-reports
+          path: |
+            outputs/test-results/
+            docs/reports/quality-report-latest.md
+            apps/web/playwright-report/
+            test-results/ui/
+          if-no-files-found: warn
+
+      - name: Check Docker Compose configuration
+        run: docker compose config --quiet
+
+      - name: Build Docker images
+        run: docker compose build

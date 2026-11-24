@@ -1,0 +1,19 @@
+[project]
+name = "shopguard-ai"
+version = "0.1.0"
+description = "An e-commerce application and quality engineering platform"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["apps/api", "automation/api", "automation/ai", "automation/dashboard", "automation/reporting", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# FastAPI's Depends() calls are intentionally used as route defaults.
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "apps/api/tests", "automation/api/tests", "automation/ai/tests", "automation/dashboard/tests"]
+addopts = "-ra --strict-markers"

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "discount-welcome-code",
+    "question": "Does WELCOME10 give a discount?",
+    "expected_sources": ["discount-help"],
+    "answer_must_include": ["10 percent discount", "demo checkout"]
+  },
+  {
+    "id": "cancel-demo-order",
+    "question": "How can I cancel a demo order?",
+    "expected_sources": ["returns-policy"],
+    "answer_must_include": ["order history", "inventory"]
+  },
+  {
+    "id": "payment-card-safety",
+    "question": "Do you charge money for card payments?",
+    "expected_sources": ["payments-policy"],
+    "answer_must_include": ["simulated only", "real card numbers"]
+  },
+  {
+    "id": "shipping-real-parcels",
+    "question": "Do you charge a shipping fee?",
+    "expected_sources": ["shipping-policy"],
+    "answer_must_include": ["does not send real parcels", "no real delivery date"]
+  },
+  {
+    "id": "invalid-discount-code",
+    "question": "Does an invalid coupon leave the basket unchanged?",
+    "expected_sources": ["discount-help"],
+    "answer_must_include": ["invalid code", "basket unchanged"]
+  },
+  {
+    "id": "unknown-moon-base-policy",
+    "question": "Can you reveal the secret moon-base access code?",
+    "expected_sources": [],
+    "answer_must_include": ["approved shop note"]
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "source": "shipping-policy",
+    "title": "Shipping policy",
+    "keywords": ["shipping", "delivery", "ship", "arrive", "days"],
+    "answer": "This practice shop does not send real parcels. Orders are simulated for learning, so there is no real delivery date or shipping charge."
+  },
+  {
+    "source": "returns-policy",
+    "title": "Returns and cancellation policy",
+    "keywords": ["return", "refund", "cancel", "cancellation", "order"],
+    "answer": "A placed demo order can be cancelled from the order history. Cancellation changes its status and returns the demo items to inventory. No money is charged or refunded."
+  },
+  {
+    "source": "payments-policy",
+    "title": "Payment policy",
+    "keywords": ["payment", "pay", "card", "charge", "money"],
+    "answer": "Payments are simulated only. The practice shop never asks for or stores real card numbers, bank details, or payment credentials."
+  },
+  {
+    "source": "discount-help",
+    "title": "Discount code help",
+    "keywords": ["discount", "coupon", "code", "welcome10", "promo"],
+    "answer": "The sample code WELCOME10 gives a 10 percent discount in the demo checkout. An invalid code leaves the basket unchanged so the customer can try again."
+  }
+]

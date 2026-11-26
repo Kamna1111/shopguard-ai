@@ -2,18 +2,83 @@
 
 ShopGuard AI is a practice e-commerce platform and quality engineering lab. It combines a FastAPI and PostgreSQL shop, a React storefront and quality dashboard, and automated browser, API, AI safety, AI evaluation, and performance checks. Payments are simulated; the project does not process real payment data.
 
+> **GitHub repository description:** Practice e-commerce shop and quality engineering lab with FastAPI, React, PostgreSQL, Playwright, API and AI checks, k6 performance tests, Docker, and CI.
+
+## What this project is for
+
+ShopGuard Market is a pretend online shop used to learn how to build and test software. A customer can browse products, create an account, add items to a basket, and place a simulated order. A separate quality dashboard gathers test results so a learner can see whether the shop is working well.
+
+It is useful for practicing both sides of quality engineering: writing an application and checking it with browser, API, AI safety, AI answer quality, and performance tests. It is a learning project; payments are simulated and no real card details are collected.
+
+## Languages and tools
+
+| Language or tool | What it does here |
+| --- | --- |
+| Python | FastAPI backend, shop logic, AI helpers, API tests, and reporting tools |
+| TypeScript | React pages and Playwright browser automation |
+| JavaScript | k6 performance scenario and web build configuration |
+| SQL | PostgreSQL tables and database queries through SQLAlchemy and Alembic |
+| CSS and HTML | Storefront and dashboard styling and page structure |
+| PostgreSQL | Saves accounts, products, baskets, orders, and AI test case drafts |
+| Docker Compose | Starts the web app, API, and database together |
+| GitHub Actions | Runs automated checks when code is pushed or a pull request is opened |
+
+The AI support helper uses the local mock provider by default; an OpenAI provider can be enabled with a private API key. The FAQ knowledge is currently stored in a JSON file. ChromaDB is not part of the implemented application.
+
+## How the parts connect
+
+```mermaid
+flowchart LR
+    Customer[Customer or learner] --> Web[React and TypeScript shop]
+    Learner[Learner] --> Dashboard[React quality dashboard]
+    Web --> API[FastAPI and Python]
+    Dashboard --> API
+    API --> DB[(PostgreSQL)]
+    API --> FAQ[FAQ JSON and AI helper]
+    BrowserTests[Playwright browser checks] --> Web
+    ApiTests[Pytest API checks] --> API
+    AiChecks[AI answer and safety checks] --> API
+    K6[k6 performance checks] --> API
+    CI[GitHub Actions] --> BrowserTests
+    CI --> ApiTests
+    CI --> Dashboard
+```
+
+## What the interface looks like
+
+The **ShopGuard Market** page has a warm, simple shop design: a welcome section, product cards, category and sort filters, search, sign-in, and a basket. Choose **Quality dashboard** in the top menu to see pass/fail status, latest saved checks, and recent run history. The dashboard reads summaries from the API; run the test commands to refresh those results. Start the local pages with `make api` and `make web` as described below.
+
 This project is being built in phases so each part can be learned and reviewed before moving on. The system plan is in [the Phase 1 architecture](docs/architecture/phase-1-requirements-and-architecture.md), and a beginner-friendly overview is in [the project guide PDF](outputs/shopguard-ai-project-guide.pdf).
 
-## Technology plan
+## Current tech stack
 
 - Python 3.12+ (local interpreter: 3.15.2) and FastAPI for the backend
 - React and TypeScript for the storefront and quality dashboard
 - PostgreSQL for shop and test records
-- ChromaDB for chatbot knowledge search
 - Playwright with TypeScript for browser automation
 - Pytest and Requests for API automation
 - k6 for performance checks
 - Docker Compose and GitHub Actions for local services and automation
+
+The earlier design considered ChromaDB for chatbot search; it is not currently installed or used. The implemented helper searches the project FAQ JSON data.
+
+## Where to find the code
+
+```text
+apps/
+  api/                 FastAPI routes, shop rules, database models, migrations
+  web/                 React storefront, quality dashboard, Playwright checks
+automation/
+  api/                 Python API clients and endpoint tests
+  ai/                  AI answer evaluation and safety checks
+  performance/         k6 load script
+  reporting/           Test result summaries and combined report
+docs/
+  architecture/        System design
+  development/         Beginner-friendly phase guides
+  reports/             Latest combined quality report
+data/knowledge_base/   FAQ content used by the support helper
+```
 
 The Phase 3 backend supports customer accounts, product search, stock, shopping baskets, simulated checkout, order history, and cancellation. Phase 4 adds a small React storefront and reusable Playwright browser tests for customer journeys.
 
